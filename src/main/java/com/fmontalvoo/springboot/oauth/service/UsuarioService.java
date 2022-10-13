@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import com.fmontalvoo.springboot.commons.models.Usuario;
 import com.fmontalvoo.springboot.oauth.rest.client.UsuarioFeignClient;
 
+import feign.FeignException;
+
 @Service
 public class UsuarioService implements IUsuarioService, UserDetailsService {
 
@@ -27,17 +29,19 @@ public class UsuarioService implements IUsuarioService, UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Usuario usuario = client.findByUsername(username);
+		try {
+			Usuario usuario = client.findByUsername(username);
 
-		if (usuario == null)
+			List<GrantedAuthority> authorities = usuario.getRoles().stream()
+					.map(rol -> new SimpleGrantedAuthority(rol.getNombre()))
+					.peek(authority -> logger.info("Rol: ".concat(authority.getAuthority())))
+					.collect(Collectors.toList());
+
+			return new User(usuario.getUsername(), usuario.getPassword(), usuario.getActivo(), true, true, true,
+					authorities);
+		} catch (FeignException e) {
 			throw new UsernameNotFoundException("No se encontro al usuario");
-
-		List<GrantedAuthority> authorities = usuario.getRoles().stream()
-				.map(rol -> new SimpleGrantedAuthority(rol.getNombre()))
-				.peek(authority -> logger.info("Rol: ".concat(authority.getAuthority()))).collect(Collectors.toList());
-
-		return new User(usuario.getUsername(), usuario.getPassword(), usuario.getActivo(), true, true, true,
-				authorities);
+		}
 	}
 
 	@Override
@@ -49,7 +53,5 @@ public class UsuarioService implements IUsuarioService, UserDetailsService {
 	public Usuario update(Long id, Usuario usuario) {
 		return client.update(id, usuario);
 	}
-	
-	
 
 }

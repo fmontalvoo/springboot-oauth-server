@@ -1,6 +1,7 @@
 package com.fmontalvoo.springboot.oauth.security;
 
 import java.util.Arrays;
+import java.util.Base64;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -46,7 +47,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 		TokenEnhancerChain enhancerChain = new TokenEnhancerChain();
 		enhancerChain.setTokenEnhancers(Arrays.asList(scopes, accessTokenConverter()));
 		endpoints.authenticationManager(manager).tokenStore(tokenStore()).accessTokenConverter(accessTokenConverter())
-		.tokenEnhancer(enhancerChain);
+				.tokenEnhancer(enhancerChain);
 	}
 
 	@Bean
@@ -57,7 +58,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	@Bean
 	public JwtAccessTokenConverter accessTokenConverter() {
 		JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-		converter.setSigningKey("0a780975e7e3e9baf1f9b616b34fd542");
+		converter.setSigningKey(Base64.getEncoder().encodeToString("0a780975e7e3e9baf1f9b616b34fd542".getBytes()));
 		return converter;
 	}
 
