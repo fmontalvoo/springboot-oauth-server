@@ -18,7 +18,7 @@ import com.fmontalvoo.springboot.commons.models.Usuario;
 import com.fmontalvoo.springboot.oauth.rest.client.UsuarioFeignClient;
 
 @Service
-public class UsuarioService implements UserDetailsService {
+public class UsuarioService implements IUsuarioService, UserDetailsService {
 
 	private final static Logger logger = LoggerFactory.getLogger(UsuarioService.class);
 
@@ -38,6 +38,11 @@ public class UsuarioService implements UserDetailsService {
 
 		return new User(usuario.getUsername(), usuario.getPassword(), usuario.getActivo(), true, true, true,
 				authorities);
+	}
+
+	@Override
+	public Usuario findByUsername(String username) {
+		return client.findByUsername(username);
 	}
 
 }
