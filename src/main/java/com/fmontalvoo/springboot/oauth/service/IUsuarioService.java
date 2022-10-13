@@ -6,4 +6,6 @@ public interface IUsuarioService {
 
 	public Usuario findByUsername(String username);
 
+	public Usuario update(Long id, Usuario usuario);
+
 }
